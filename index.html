@@ -12,7 +12,7 @@
     <h1>Koçluk Takip Sistemi</h1>
     <p class="muted">Koç veya öğrenci hesabınızla giriş yapın.</p>
     <form id="loginForm" style="display:block">
-      <label>Kullanıcı adı<input id="username" required></label><br>
+      <label>Kullanıcı adı / e-posta<input id="username" required></label><br>
       <label>Şifre<input id="password" type="password" required></label><br>
       <button type="submit" style="width:100%">Giriş yap</button>
     </form>
@@ -26,11 +26,13 @@
 document.getElementById("loginForm").addEventListener("submit", async (e)=>{
   e.preventDefault();
   msg.textContent="Giriş yapılıyor...";
-  const email = username.value.trim().toLowerCase() + "@ogrenci.example.com";
+  const giris = username.value.trim().toLowerCase();
+  const email = giris.includes("@") ? giris : giris + "@ogrenci.example.com";
   const { error } = await supabaseClient.auth.signInWithPassword({email,password:password.value});
   if(error){msg.textContent="Giriş başarısız: "+error.message;return;}
   const { profile }=await getSessionProfile();
-  location.href=profile?.role==="coach"?"coach.html":"student.html";
+  if(!profile){msg.textContent="Giriş başarılı ama profil bulunamadı.";return;}
+  location.href=profile.role==="coach"?"coach.html":"student.html";
 });
 </script>
 </body>
