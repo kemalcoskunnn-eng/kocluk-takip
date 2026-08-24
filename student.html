@@ -7,19 +7,14 @@
 <body>
 <div class="shell">
   <header class="topbar">
-    <div><span class="eyebrow">YKS Eşit Ağırlık</span><h1 id="title">Öğrenci Paneli</h1><p class="muted">Denemelerini gir, gelişimini ve hukuk hedefini tek ekranda takip et.</p></div>
+    <div><span class="eyebrow">YKS Eşit Ağırlık</span><h1 id="title">Öğrenci Paneli</h1><p class="muted">Denemelerini gir, gelişimini tek ekranda takip et.</p></div>
     <button class="secondary" onclick="signOut()">Çıkış</button>
   </header>
 
   <div class="grid kpi-grid" id="kpis"></div>
 
-  <div class="chart-grid">
-    <div class="card chart-card"><div class="card-head"><div><span class="eyebrow blue">TYT</span><h2>TYT net gelişimi</h2></div><span class="scale-note">120 net üzerinden</span></div><div class="chart-wrap"><canvas id="tytChart"></canvas></div></div>
-    <div class="card chart-card"><div class="card-head"><div><span class="eyebrow amber">AYT</span><h2>AYT net gelişimi</h2></div><span class="scale-note">80 net üzerinden</span></div><div class="chart-wrap"><canvas id="aytChart"></canvas></div></div>
-  </div>
-
-  <div class="card">
-    <div class="card-head"><div><span class="eyebrow">Yeni sonuç</span><h2>Deneme ekle</h2></div><span class="muted small">Netleri 0,25 hassasiyetle girebilirsin.</span></div>
+  <div class="card compact-form-card">
+    <div class="card-head"><div><span class="eyebrow">Yeni sonuç</span><h2>Deneme ekle</h2></div><span class="muted small">0,25 net hassasiyet</span></div>
     <form id="examForm">
       <label>Tür<select id="exam_type"><option>TYT</option><option>AYT</option></select></label>
       <label>Tarih<input id="exam_date" type="date" required></label>
@@ -31,6 +26,11 @@
       <label>Not<input id="note" placeholder="Kısa not"></label>
       <button type="submit">Kaydet</button>
     </form>
+  </div>
+
+  <div class="chart-grid">
+    <div class="card chart-card"><div class="card-head"><div><span class="eyebrow blue">TYT</span><h2>TYT gelişimi</h2></div><span class="scale-note">120 net</span></div><div class="chart-wrap"><canvas id="tytChart"></canvas></div></div>
+    <div class="card chart-card"><div class="card-head"><div><span class="eyebrow amber">AYT</span><h2>AYT gelişimi</h2></div><span class="scale-note">80 net</span></div><div class="chart-wrap"><canvas id="aytChart"></canvas></div></div>
   </div>
 
   <div class="card">
