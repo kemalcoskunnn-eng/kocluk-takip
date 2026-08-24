@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Öğrenci Paneli</title><link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="shell">
+  <div class="row">
+    <div><h1 id="title">Öğrenci Paneli</h1><p class="muted">TYT ve AYT denemelerini buradan ekle.</p></div>
+    <button class="secondary" onclick="signOut()">Çıkış</button>
+  </div>
+  <div class="grid" id="kpis"></div>
+  <div class="card">
+    <h2>Yeni deneme ekle</h2>
+    <form id="examForm">
+      <label>Tür<select id="exam_type"><option>TYT</option><option>AYT</option></select></label>
+      <label>Tarih<input id="exam_date" type="date" required></label>
+      <label>Deneme<input id="exam_name"></label>
+      <label id="l1">Türkçe<input id="s1" type="number" step=".25"></label>
+      <label id="l2">Sosyal<input id="s2" type="number" step=".25"></label>
+      <label id="l3">Matematik<input id="s3" type="number" step=".25"></label>
+      <label id="l4">Fen<input id="s4" type="number" step=".25"></label>
+      <label>Not<input id="note"></label>
+      <button type="submit">Kaydet</button>
+    </form>
+  </div>
+  <div class="card"><h2>Gelişim grafiği</h2><canvas id="chart"></canvas></div>
+  <div class="card"><h2>Denemelerim</h2>
+    <div style="overflow:auto"><table><thead><tr><th>Tarih</th><th>Tür</th><th>Deneme</th><th>Toplam</th><th>Önceki +/-</th></tr></thead><tbody id="rows"></tbody></table></div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="config.js"></script><script src="app.js"></script><script src="student.js"></script>
+</body>
+</html>

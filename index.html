@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Koçluk Giriş</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="shell login">
+  <div class="card">
+    <h1>Koçluk Takip Sistemi</h1>
+    <p class="muted">Koç veya öğrenci hesabınızla giriş yapın.</p>
+    <form id="loginForm" style="display:block">
+      <label>Kullanıcı adı<input id="username" required></label><br>
+      <label>Şifre<input id="password" type="password" required></label><br>
+      <button type="submit" style="width:100%">Giriş yap</button>
+    </form>
+    <p id="msg" class="muted"></p>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+<script>
+document.getElementById("loginForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  msg.textContent="Giriş yapılıyor...";
+  const email = username.value.trim().toLowerCase() + "@ogrenci.example.com";
+  const { error } = await supabaseClient.auth.signInWithPassword({email,password:password.value});
+  if(error){msg.textContent="Giriş başarısız: "+error.message;return;}
+  const { profile }=await getSessionProfile();
+  location.href=profile?.role==="coach"?"coach.html":"student.html";
+});
+</script>
+</body>
+</html>

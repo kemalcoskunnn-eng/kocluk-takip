@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Koç Paneli</title><link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="shell">
+  <div class="row">
+    <div><h1>Koç Paneli</h1><p class="muted">Öğrenci verileri canlı olarak yenilenir.</p></div>
+    <button class="secondary" onclick="signOut()">Çıkış</button>
+  </div>
+  <div class="grid" id="summary"></div>
+  <div class="card">
+    <h2>Öğrenciler</h2>
+    <div style="overflow:auto"><table>
+      <thead><tr><th>Öğrenci</th><th>Son TYT</th><th>Son AYT</th><th>TYT Δ</th><th>AYT Δ</th><th>Hedef</th><th>Hedef TYT</th><th>Hedef AYT</th><th>Durum</th></tr></thead>
+      <tbody id="students"></tbody>
+    </table></div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script><script src="app.js"></script><script src="coach.js"></script>
+</body>
+</html>
