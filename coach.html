@@ -6,20 +6,28 @@
 </head>
 <body>
 <div class="shell">
-  <div class="row">
-    <div><h1>Koç Paneli</h1><p class="muted">Öğrenci verileri canlı olarak yenilenir.</p></div>
+  <header class="topbar">
+    <div><span class="eyebrow">Canlı koç ekranı</span><h1>Koç Paneli</h1><p class="muted">Öğrencilerin son durumunu, gelişimini ve hedefe uzaklığını tek ekranda izle.</p></div>
     <button class="secondary" onclick="signOut()">Çıkış</button>
+  </header>
+
+  <div class="grid kpi-grid" id="summary"></div>
+
+  <div class="card chart-card">
+    <div class="card-head"><div><span class="eyebrow">Karşılaştırma</span><h2>Son TYT / AYT netleri</h2></div><span class="live-dot">● Canlı</span></div>
+    <div class="chart-wrap coach-chart"><canvas id="coachChart"></canvas></div>
   </div>
-  <div class="grid" id="summary"></div>
+
   <div class="card">
-    <h2>Öğrenciler</h2>
-    <div style="overflow:auto"><table>
-      <thead><tr><th>Öğrenci</th><th>Son TYT</th><th>Son AYT</th><th>TYT Δ</th><th>AYT Δ</th><th>Hedef</th><th>Hedef TYT</th><th>Hedef AYT</th><th>Durum</th></tr></thead>
+    <div class="card-head"><div><span class="eyebrow">Öğrenciler</span><h2>Hedef ve gelişim tablosu</h2></div><span id="updatedAt" class="muted small"></span></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Öğrenci</th><th>Son TYT</th><th>Son AYT</th><th>TYT gelişim</th><th>AYT gelişim</th><th>Hedef</th><th>TYT fark</th><th>AYT fark</th><th>Durum</th></tr></thead>
       <tbody id="students"></tbody>
     </table></div>
   </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="config.js"></script><script src="app.js"></script><script src="coach.js"></script>
 </body>
 </html>
