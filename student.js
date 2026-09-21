@@ -439,8 +439,8 @@ async function loadExams(){
   const aDiff=a&&ap?Number(a.total_net)-Number(ap.total_net):null;
 
   kpis.innerHTML=`
-    <div class="overview-metric tyt-metric"><span>Son TYT</span><b>${t?fmt(t.total_net):"Veri yok"}</b><small class="${tDiff==null?"":tDiff>=0?"positive":"negative"}">${tDiff==null?"İlk veri bekleniyor":`Öncekiye göre ${signed(tDiff)}`}</small></div>
-    <div class="overview-metric ayt-metric"><span>Son AYT</span><b>${a?fmt(a.total_net):"Veri yok"}</b><small class="${aDiff==null?"":aDiff>=0?"positive":"negative"}">${aDiff==null?"İlk veri bekleniyor":`Öncekiye göre ${signed(aDiff)}`}</small></div>
+    <div class="overview-metric tyt-metric"><span>Son TYT</span><b>${t?fmt(t.total_net):"Veri yok"}</b><small class="${tDiff==null?"":tDiff>=0?"positive":"soft-warning"}">${tDiff==null?"İlk veri bekleniyor":tDiff>=0?`Önceki denemeye göre +${fmt(tDiff)} net`:`Önceki denemeye göre ${fmt(Math.abs(tDiff))} net aşağıda`}</small></div>
+    <div class="overview-metric ayt-metric"><span>Son AYT</span><b>${a?fmt(a.total_net):"Veri yok"}</b><small class="${aDiff==null?"":aDiff>=0?"positive":"soft-warning"}">${aDiff==null?"İlk veri bekleniyor":aDiff>=0?`Önceki denemeye göre +${fmt(aDiff)} net`:`Önceki denemeye göre ${fmt(Math.abs(aDiff))} net aşağıda`}</small></div>
     <div class="overview-metric"><span>En iyi TYT</span><b>${best(tyt)==null?"—":fmt(best(tyt))}</b><small>${tyt.length} TYT denemesi</small></div>
     <div class="overview-metric"><span>En iyi AYT</span><b>${best(ayt)==null?"—":fmt(best(ayt))}</b><small>${ayt.length} AYT denemesi</small></div>`;
 
