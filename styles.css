@@ -10,3 +10,18 @@
 .student-meta{display:flex;flex-wrap:wrap;gap:7px 12px;margin:12px 0;font-size:10px;color:#778195}
 .student-target{border-top:1px solid #edf0f5;padding-top:11px}
 .student-target b{display:block;margin-top:4px;font-size:12px}
+
+.latest-net-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.latest-net{border:1px solid #e7ebf2;border-radius:14px;padding:12px;background:#fff}
+.latest-net span{font-size:9px;font-weight:900;letter-spacing:.1em;color:#7b8494}
+.latest-net b{display:block;font-size:26px;line-height:1.05;margin:6px 0 5px;letter-spacing:-.035em}
+.latest-net small{font-size:10px;color:#7b8494}
+.tyt-latest{border-top:3px solid #2563eb}
+.ayt-latest{border-top:3px solid #d97706}
+.personal-chart-head{display:flex;justify-content:space-between;align-items:end;gap:8px;margin:8px 0 6px}
+.personal-chart-head span{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:#5f6b7c}
+.personal-chart-head small{font-size:9px;color:#8a93a3}
+.personal-chart-wrap{height:165px;border:1px solid #edf0f5;border-radius:13px;background:#fff;padding:7px}
+.personal-chart-wrap canvas{width:100%!important;height:100%!important}
+.empty-progress{height:100%;display:flex;align-items:center;justify-content:center;color:#8a93a3;font-size:11px}
+@media(max-width:600px){.latest-net-row{grid-template-columns:1fr 1fr}.personal-chart-wrap{height:150px}.latest-net b{font-size:22px}}
