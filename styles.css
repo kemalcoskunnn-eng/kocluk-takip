@@ -85,3 +85,6 @@
 .motivation-banner b{font-size:17px;letter-spacing:-.02em;color:#273142}
 .motivation-banner small{font-size:11px;line-height:1.5;color:#758095}
 @media(max-width:600px){.motivation-banner{padding:14px}.motivation-banner b{font-size:15px}}
+
+.soft-warning{color:#a16207!important}
+.goal-progress-item small{font-weight:700}
