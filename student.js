@@ -1,4 +1,4 @@
-let me, tytChart, aytChart, examChannel;
+let me, tytChart, aytChart, tytSubjectsChart, aytSubjectsChart, examChannel;
 
 const EXAM_RULES={
   TYT:[
@@ -114,6 +114,55 @@ function upsertChart(existing, canvas, exams, type, maxNet, targetNet){
   });
 }
 
+function trendInfo(list){
+  const vals=list.map(x=>Number(x.total_net));
+  const current=avg(vals.slice(-5));
+  const previous=vals.length>5?avg(vals.slice(-10,-5)):null;
+  return{current,previous,diff:current!=null&&previous!=null?current-previous:null};
+}
+
+function renderTrendCards(tyt,ayt){
+  const make=(label,tr)=>{
+    const cls=tr.diff==null?"":tr.diff>=0?"positive":"negative";
+    return `<div class="trend-card"><span>${label} trendi</span><b>${tr.current==null?"—":fmt(tr.current)}</b><small>Son 5 ortalama</small><div class="trend-diff ${cls}">${tr.diff==null?"Önceki 5 için yeterli veri yok":`Önceki 5 ortalamaya göre ${signed(tr.diff)} net`}</div></div>`;
+  };
+  studentTrendCards.innerHTML=make("TYT",trendInfo(tyt))+make("AYT",trendInfo(ayt));
+}
+
+function subjectChart(existing,canvas,exams,type){
+  if(existing)existing.destroy();
+  if(!exams.length){
+    canvas.parentElement.innerHTML=`<div class="empty-progress">Henüz ${type} verisi yok</div>`;
+    return null;
+  }
+  const names=EXAM_RULES[type].map(x=>x.name);
+  const keys=["score_1","score_2","score_3","score_4"];
+  const palettes=type==="TYT"?["#2563eb","#0f766e","#7c3aed","#0891b2"]:["#d97706","#dc2626","#9333ea","#65a30d"];
+  return new Chart(canvas,{
+    type:"line",
+    data:{
+      labels:exams.map(x=>shortDate(x.exam_date)),
+      datasets:keys.map((k,i)=>({
+        label:names[i],
+        data:exams.map(x=>Number(x[k])),
+        borderColor:palettes[i],
+        backgroundColor:"transparent",
+        borderWidth:2,
+        pointRadius:3,
+        tension:.2,
+        fill:false
+      }))
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      animation:false,
+      plugins:{legend:{labels:{usePointStyle:true,boxWidth:8,font:{size:10}}}},
+      scales:{y:{grid:{color:"rgba(148,163,184,.12)"}},x:{grid:{display:false},ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:8}}}
+    }
+  });
+}
+
 function renderGoal(target,t,a){
   if(!target){
     goalCard.innerHTML=`
@@ -221,6 +270,10 @@ async function loadExams(){
 
   renderGoal(target,t,a);
   renderBreakdown(exams);
+  renderTrendCards(tyt,ayt);
+
+  tytSubjectsChart=subjectChart(tytSubjectsChart,document.getElementById("tytSubjectsChart"),tyt,"TYT");
+  aytSubjectsChart=subjectChart(aytSubjectsChart,document.getElementById("aytSubjectsChart"),ayt,"AYT");
 
   tytChart=upsertChart(tytChart,document.getElementById("tytChart"),tyt,"TYT",120,target?.target_tyt ?? null);
   aytChart=upsertChart(aytChart,document.getElementById("aytChart"),ayt,"AYT",80,target?.target_ayt ?? null);
