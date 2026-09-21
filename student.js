@@ -15,6 +15,20 @@ const EXAM_RULES={
   ]
 };
 
+const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : null;
+const signed = n => n==null ? "—" : `${n>=0?"+":""}${fmt(n)}`;
+const pct = (n,max) => n==null ? "—" : `${((Number(n)/max)*100).toFixed(1)}%`;
+const shortDate=s=>{
+  if(!s)return"";
+  const [y,m,d]=s.split("-");
+  return `${d}.${m}`;
+};
+const fullDate=s=>{
+  if(!s)return"—";
+  const [y,m,d]=s.split("-");
+  return `${d}.${m}.${y}`;
+};
+
 function labelsFor(type){
   const rules=EXAM_RULES[type];
   ["l1","l2","l3","l4"].forEach((id,i)=>{
@@ -27,12 +41,15 @@ function labelsFor(type){
     input.required=true;
     input.placeholder=`${rules[i].min} – ${rules[i].max}`;
   });
+  updateTotalPreview();
+}
+
+function updateTotalPreview(){
+  const vals=[s1,s2,s3,s4].map(x=>Number(x.value||0));
+  totalPreview.textContent=fmt(vals.reduce((a,b)=>a+b,0));
 }
 exam_type.addEventListener("change",()=>labelsFor(exam_type.value));
-
-const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : null;
-const signed = n => n==null ? "—" : `${n>=0?"+":""}${fmt(n)}`;
-const pct = (n,max) => n==null ? "—" : `${((Number(n)/max)*100).toFixed(1)}%`;
+[s1,s2,s3,s4].forEach(el=>el.addEventListener("input",updateTotalPreview));
 
 function chartDataset(type, exams, targetNet){
   const mainColor=type==="TYT"?"#2563eb":"#d97706";
@@ -43,8 +60,8 @@ function chartDataset(type, exams, targetNet){
     borderColor:mainColor,
     backgroundColor:fillColor,
     borderWidth:2.5,
-    pointRadius:3,
-    pointHoverRadius:5,
+    pointRadius:4,
+    pointHoverRadius:6,
     tension:.22,
     fill:true
   }];
@@ -64,7 +81,7 @@ function chartDataset(type, exams, targetNet){
 }
 
 function upsertChart(existing, canvas, exams, type, maxNet, targetNet){
-  const labels=exams.map((x,i)=>`${i+1}`);
+  const labels=exams.map(x=>shortDate(x.exam_date));
   const datasets=chartDataset(type,exams,targetNet);
 
   if(existing){
@@ -81,27 +98,91 @@ function upsertChart(existing, canvas, exams, type, maxNet, targetNet){
       responsive:true,
       maintainAspectRatio:false,
       animation:false,
-      normalized:true,
-      parsing:false,
       interaction:{mode:"index",intersect:false},
       plugins:{
         legend:{display:true,labels:{usePointStyle:true,boxWidth:8}},
-        tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmt(c.raw)}`}}
+        tooltip:{callbacks:{title:items=>{
+          const x=exams[items[0]?.dataIndex];
+          return x?fullDate(x.exam_date):"";
+        },label:c=>`${c.dataset.label}: ${fmt(c.raw)}`}}
       },
       scales:{
         y:{min:0,max:maxNet,grid:{color:"rgba(148,163,184,.13)"},ticks:{stepSize:type==="TYT"?20:10}},
-        x:{grid:{display:false},ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:10}}
+        x:{grid:{display:false},ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:8}}
       }
     }
   });
 }
 
+function renderGoal(target,t,a){
+  if(!target){
+    goalCard.innerHTML=`
+      <div class="card-head"><div><span class="eyebrow">Hedef</span><h2>Hukuk hedefi</h2></div><span class="badge mid">HEDEF YOK</span></div>
+      <div class="empty-goal"><b>Henüz hedef belirlenmedi.</b><span>Koç hedef belirlediğinde burada TYT ve AYT ilerlemeni göreceksin.</span></div>`;
+    return;
+  }
+
+  const tNet=t?Number(t.total_net):null;
+  const aNet=a?Number(a.total_net):null;
+  const tTarget=Number(target.target_tyt);
+  const aTarget=Number(target.target_ayt);
+  const tProgress=tNet==null?0:Math.max(0,Math.min(100,(tNet/tTarget)*100));
+  const aProgress=aNet==null?0:Math.max(0,Math.min(100,(aNet/aTarget)*100));
+  const tGap=tNet==null?null:tTarget-tNet;
+  const aGap=aNet==null?null:aTarget-aNet;
+
+  goalCard.innerHTML=`
+    <div class="card-head">
+      <div><span class="eyebrow">Hedef</span><h2>${target.university}</h2></div>
+      <span class="pill">Sıra referansı ${target.rank_ref??"—"}</span>
+    </div>
+    <div class="goal-progress-row">
+      <div class="goal-progress-item">
+        <div class="goal-progress-label"><span>TYT</span><b>${tNet==null?"Veri yok":fmt(tNet)} / ${fmt(tTarget)}</b></div>
+        <div class="progress-track"><span style="width:${tProgress}%"></span></div>
+        <small>${tGap==null?"İlk TYT verisi bekleniyor":tGap<=0?"Hedef baremi geçildi":`Hedefe ${fmt(tGap)} net kaldı`}</small>
+      </div>
+      <div class="goal-progress-item">
+        <div class="goal-progress-label"><span>AYT</span><b>${aNet==null?"Veri yok":fmt(aNet)} / ${fmt(aTarget)}</b></div>
+        <div class="progress-track amber"><span style="width:${aProgress}%"></span></div>
+        <small>${aGap==null?"İlk AYT verisi bekleniyor":aGap<=0?"Hedef baremi geçildi":`Hedefe ${fmt(aGap)} net kaldı`}</small>
+      </div>
+    </div>`;
+}
+
+function renderBreakdown(exams){
+  if(!exams.length){
+    latestBreakdown.innerHTML=`
+      <div class="card-head"><div><span class="eyebrow">Son deneme</span><h2>Ders dağılımı</h2></div></div>
+      <div class="empty-goal"><b>Henüz deneme yok.</b><span>İlk denemeni kaydettiğinde ders dağılımın burada görünecek.</span></div>`;
+    return;
+  }
+  const x=exams[exams.length-1];
+  const rules=EXAM_RULES[x.exam_type];
+  const scores=[x.score_1,x.score_2,x.score_3,x.score_4].map(Number);
+  latestBreakdown.innerHTML=`
+    <div class="card-head">
+      <div><span class="eyebrow">Son deneme</span><h2>${x.exam_name||x.exam_type+" denemesi"}</h2></div>
+      <span class="type-chip ${x.exam_type.toLowerCase()}">${x.exam_type} • ${fullDate(x.exam_date)}</span>
+    </div>
+    <div class="breakdown-total"><span>Toplam net</span><b>${fmt(x.total_net)}</b></div>
+    <div class="subject-breakdown">
+      ${rules.map((r,i)=>{
+        const width=Math.max(0,Math.min(100,(scores[i]/r.max)*100));
+        return `<div class="subject-row"><div><span>${r.name}</span><b>${fmt(scores[i])}</b></div><div class="subject-track"><span style="width:${width}%"></span></div></div>`;
+      }).join("")}
+    </div>`;
+}
+
 async function loadExams(){
-  const [{data:examsData,error:examError},{data:targets}] = await Promise.all([
+  const [{data:examsData,error:examError},{data:targets,error:targetError}] = await Promise.all([
     supabaseClient.from("exams").select("*").eq("student_id",me.session.user.id).order("exam_date",{ascending:true}).order("created_at",{ascending:true}),
     supabaseClient.from("law_targets").select("*").order("rank_ref")
   ]);
-  if(examError){console.error(examError);return;}
+  if(examError||targetError){
+    console.error(examError||targetError);
+    return;
+  }
 
   const exams=(examsData||[]).map(x=>({...x,total_net:Number(x.total_net)}));
   const target=(targets||[]).find(x=>x.id===me.profile.target_id)||null;
@@ -120,27 +201,26 @@ async function loadExams(){
   exams.slice().reverse().forEach(x=>{
     const diff=diffs.get(x.id);
     const max=x.exam_type==="TYT"?120:80;
-    rows.insertAdjacentHTML("beforeend",`<tr><td>${x.exam_date}</td><td><span class="type-chip ${x.exam_type.toLowerCase()}">${x.exam_type}</span></td><td>${x.exam_name||"—"}</td><td><b>${fmt(x.total_net)}</b></td><td class="${diff==null?"":diff>=0?"positive":"negative"}">${signed(diff)}</td><td>${pct(x.total_net,max)}</td></tr>`);
+    rows.insertAdjacentHTML("beforeend",`<tr><td>${fullDate(x.exam_date)}</td><td><span class="type-chip ${x.exam_type.toLowerCase()}">${x.exam_type}</span></td><td>${x.exam_name||"—"}</td><td><b>${fmt(x.total_net)}</b></td><td class="${diff==null?"":diff>=0?"positive":"negative"}">${signed(diff)}</td><td>${pct(x.total_net,max)}</td></tr>`);
   });
+  if(!exams.length)rows.innerHTML='<tr><td colspan="6" class="muted">Henüz deneme kaydı yok.</td></tr>';
   examCount.textContent=`${exams.length} deneme`;
 
   const latest=a=>a.length?a[a.length-1]:null;
-  const first=a=>a.length?a[0]:null;
   const best=a=>a.length?Math.max(...a.map(x=>Number(x.total_net))):null;
-  const last5=a=>avg(a.slice(-5).map(x=>Number(x.total_net)));
-  const t=latest(tyt),a=latest(ayt),t0=first(tyt),a0=first(ayt);
-  const tDiff=t&&t0?Number(t.total_net)-Number(t0.total_net):null;
-  const aDiff=a&&a0?Number(a.total_net)-Number(a0.total_net):null;
-  const targetName=target?.university||"Hedef seçilmedi";
+  const prev=a=>a.length>1?a[a.length-2]:null;
+  const t=latest(tyt),a=latest(ayt),tp=prev(tyt),ap=prev(ayt);
+  const tDiff=t&&tp?Number(t.total_net)-Number(tp.total_net):null;
+  const aDiff=a&&ap?Number(a.total_net)-Number(ap.total_net):null;
 
   kpis.innerHTML=`
-    <div class="kpi accent-blue"><span>Son TYT</span><b>${fmt(t?.total_net)}</b><small>${pct(t?.total_net,120)} başarı</small></div>
-    <div class="kpi accent-amber"><span>Son AYT</span><b>${fmt(a?.total_net)}</b><small>${pct(a?.total_net,80)} başarı</small></div>
-    <div class="kpi"><span>TYT gelişim</span><b class="${tDiff==null?"":tDiff>=0?"positive":"negative"}">${signed(tDiff)}</b><small>En iyi ${fmt(best(tyt))}</small></div>
-    <div class="kpi"><span>AYT gelişim</span><b class="${aDiff==null?"":aDiff>=0?"positive":"negative"}">${signed(aDiff)}</b><small>En iyi ${fmt(best(ayt))}</small></div>
-    <div class="kpi"><span>Son 5 TYT ort.</span><b>${fmt(last5(tyt))}</b><small>${tyt.length} TYT denemesi</small></div>
-    <div class="kpi"><span>Son 5 AYT ort.</span><b>${fmt(last5(ayt))}</b><small>${ayt.length} AYT denemesi</small></div>
-    <div class="kpi target-kpi"><span>Hukuk hedefi</span><b class="target-name">${targetName}</b><small>${target?`TYT ${fmt(target.target_tyt)} • AYT ${fmt(target.target_ayt)}`:"Koçun hedef belirleyebilir"}</small></div>`;
+    <div class="overview-metric tyt-metric"><span>Son TYT</span><b>${t?fmt(t.total_net):"Veri yok"}</b><small class="${tDiff==null?"":tDiff>=0?"positive":"negative"}">${tDiff==null?"İlk veri bekleniyor":`Öncekiye göre ${signed(tDiff)}`}</small></div>
+    <div class="overview-metric ayt-metric"><span>Son AYT</span><b>${a?fmt(a.total_net):"Veri yok"}</b><small class="${aDiff==null?"":aDiff>=0?"positive":"negative"}">${aDiff==null?"İlk veri bekleniyor":`Öncekiye göre ${signed(aDiff)}`}</small></div>
+    <div class="overview-metric"><span>En iyi TYT</span><b>${best(tyt)==null?"—":fmt(best(tyt))}</b><small>${tyt.length} TYT denemesi</small></div>
+    <div class="overview-metric"><span>En iyi AYT</span><b>${best(ayt)==null?"—":fmt(best(ayt))}</b><small>${ayt.length} AYT denemesi</small></div>`;
+
+  renderGoal(target,t,a);
+  renderBreakdown(exams);
 
   tytChart=upsertChart(tytChart,document.getElementById("tytChart"),tyt,"TYT",120,target?.target_tyt ?? null);
   aytChart=upsertChart(aytChart,document.getElementById("aytChart"),ayt,"AYT",80,target?.target_ayt ?? null);
@@ -196,5 +276,6 @@ examForm.addEventListener("submit",async(e)=>{
   examForm.reset();
   labelsFor("TYT");
   exam_date.valueAsDate=new Date();
+  updateTotalPreview();
   await loadExams();
 });
