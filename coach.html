@@ -13,21 +13,23 @@
 
   <div class="grid kpi-grid" id="summary"></div>
 
-  <div class="card chart-card">
-    <div class="card-head"><div><span class="eyebrow">Karşılaştırma</span><h2>Son TYT / AYT netleri</h2></div><span class="live-dot">● Canlı</span></div>
-    <div class="chart-wrap coach-chart"><canvas id="coachChart"></canvas></div>
+  <div class="card">
+    <div class="card-head">
+      <div><span class="eyebrow">Öğrenci özeti</span><h2>Son durum</h2></div>
+      <span class="live-dot">● Canlı</span>
+    </div>
+    <div id="studentCards" class="student-summary-grid"></div>
   </div>
 
   <div class="card">
     <div class="card-head"><div><span class="eyebrow">Öğrenciler</span><h2>Hedef ve gelişim tablosu</h2></div><span id="updatedAt" class="muted small"></span></div>
     <div class="table-wrap"><table>
-      <thead><tr><th>Öğrenci</th><th>Son TYT</th><th>Son AYT</th><th>TYT gelişim</th><th>AYT gelişim</th><th>Hedef</th><th>TYT fark</th><th>AYT fark</th><th>Durum</th></tr></thead>
+      <thead><tr><th>Öğrenci</th><th>Son TYT</th><th>Son AYT</th><th>Önceki TYT +/-</th><th>Önceki AYT +/-</th><th>Hedef</th><th>TYT fark</th><th>AYT fark</th><th>Durum</th></tr></thead>
       <tbody id="students"></tbody>
     </table></div>
   </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="config.js"></script><script src="app.js"></script><script src="coach.js"></script>
 </body>
 </html>
