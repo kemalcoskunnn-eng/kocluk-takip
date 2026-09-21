@@ -3,9 +3,10 @@ const progressCharts=new Map();
 
 function statusFor(tyt,ayt,target){
   if(!target)return["HEDEF SEÇİLMEDİ","mid"];
+  if(target.target_tyt==null||target.target_ayt==null)return["HEDEF TANIMLI","mid"];
   if(tyt==null||ayt==null)return["VERİ BEKLENİYOR","mid"];
-  if(tyt>=target.target_tyt&&ayt>=target.target_ayt)return["HEDEFTE","good"];
-  if(tyt>=target.target_tyt-5&&ayt>=target.target_ayt-4)return["YAKIN","mid"];
+  if(tyt>=Number(target.target_tyt)&&ayt>=Number(target.target_ayt))return["HEDEFTE","good"];
+  if(tyt>=Number(target.target_tyt)-5&&ayt>=Number(target.target_ayt)-4)return["YAKIN","mid"];
   return["GELİŞİM GEREKLİ","bad"];
 }
 const signed=n=>n==null?"—":(n>=0?"+":"")+fmt(n);
@@ -59,7 +60,8 @@ async function load(){
     const tNet=t?Number(t.total_net):null,aNet=a?Number(a.total_net):null;
     const tDiff=t&&tp?tNet-Number(tp.total_net):null,aDiff=a&&ap?aNet-Number(ap.total_net):null;
     const tStart=tyt.length>1?tNet-Number(tyt[0].total_net):null,aStart=ayt.length>1?aNet-Number(ayt[0].total_net):null;
-    const tGap=tNet!=null&&target?tNet-Number(target.target_tyt):null,aGap=aNet!=null&&target?aNet-Number(target.target_ayt):null;
+    const hasBenchmark=target&&target.target_tyt!=null&&target.target_ayt!=null;
+    const tGap=tNet!=null&&hasBenchmark?tNet-Number(target.target_tyt):null,aGap=aNet!=null&&hasBenchmark?aNet-Number(target.target_ayt):null;
     const [stat,cls]=statusFor(tNet,aNet,target);if(stat==="HEDEFTE")onTarget++;else if(stat==="YAKIN")near++;
     const safeId=p.id.replace(/[^a-zA-Z0-9_-]/g,""),canvasId="progress-"+safeId;
     const previousByType={TYT:null,AYT:null},diffMap=new Map();
