@@ -164,10 +164,36 @@ function subjectChart(existing,canvas,exams,type){
 }
 
 
+
+function pickMessage(list,key){
+  if(!list.length)return"";
+  let hash=0;
+  for(const ch of String(key))hash=(hash*31+ch.charCodeAt(0))>>>0;
+  return list[hash%list.length];
+}
+
 function renderMotivation(tyt,ayt,target){
   const all=[...tyt,...ayt].sort((a,b)=>a.exam_date.localeCompare(b.exam_date)||a.created_at.localeCompare(b.created_at));
+  const todayKey=new Date().toISOString().slice(0,10);
+
   if(!all.length){
-    motivationBanner.innerHTML='<div><span class="motivation-kicker">Başlangıç</span><b>İlk denemeni gir, gelişimin burada görünmeye başlayacak.</b><small>Önemli olan kusursuz başlamak değil, düzenli veri oluşturmak.</small></div>';
+    const titles=[
+      "İlk denemeni gir, gelişimin görünmeye başlasın.",
+      "Başlangıç noktanı görmek için ilk deneme yeterli.",
+      "İlk veri geldikten sonra gelişimi net biçimde takip edebiliriz.",
+      "Bugün sadece ilk adımı atman yeterli: bir deneme kaydet.",
+      "Gelişim grafiği ilk denemeyle başlıyor.",
+      "İlk sonuç, sonraki ilerlemenin referans noktası olacak."
+    ];
+    const subs=[
+      "Önemli olan kusursuz başlamak değil, düzenli veri oluşturmak.",
+      "Biriken her deneme, neyin işe yaradığını daha görünür hale getirir.",
+      "Düzenli kayıt, gerçek gelişimi tahminden ayırır.",
+      "İlk sonuçtan sonra hangi dersin daha hızlı ilerlediğini görebileceksin.",
+      "Tek bir veri bile başlangıç çizgisini belirlemek için yeterli.",
+      "Sonraki denemeler geldikçe trend çok daha anlamlı hale gelecek."
+    ];
+    motivationBanner.innerHTML=`<div><span class="motivation-kicker">Bugünkü odak</span><b>${pickMessage(titles,todayKey+"t")}</b><small>${pickMessage(subs,todayKey+"s")}</small></div>`;
     return;
   }
 
@@ -175,23 +201,112 @@ function renderMotivation(tyt,ayt,target){
   const same=latestExam.exam_type==="TYT"?tyt:ayt;
   const prev=same.length>1?same[same.length-2]:null;
   const diff=prev?Number(latestExam.total_net)-Number(prev.total_net):null;
+  const key=(me?.profile?.full_name||"student")+"-"+latestExam.exam_date+"-"+todayKey+"-"+latestExam.exam_type;
 
-  let title="",sub="";
+  let titles=[],subs=[];
+
   if(diff!=null&&diff>=5){
-    title=`Son ${latestExam.exam_type} denemende ${fmt(diff)} net yükseldin.`;
-    sub="Bu sıçramayı kalıcı hale getirmek için aynı çalışma düzenini koru.";
+    titles=[
+      `Son ${latestExam.exam_type} denemende ${fmt(diff)} net yükseldin.`,
+      `${latestExam.exam_type} tarafında güçlü bir sıçrama var: +${fmt(diff)} net.`,
+      `Son denemede net artışı belirgin: +${fmt(diff)}.`,
+      `Bu denemede öncekinin ${fmt(diff)} net üstündesin.`,
+      `Son sonuçta ciddi ilerleme var: +${fmt(diff)} net.`,
+      `${latestExam.exam_type} performansında net bir yükseliş yakaladın.`,
+      `Son deneme, önceki sonuca göre güçlü bir gelişim gösteriyor.`,
+      `Net çizgin yukarı dönmüş durumda: +${fmt(diff)}.`
+    ];
+    subs=[
+      "Bu sıçramayı kalıcı hale getirmek için aynı çalışma düzenini koru.",
+      "Şimdi önemli olan bu seviyeyi sonraki denemede de tekrar edebilmek.",
+      "Hangi derslerin bu artışı getirdiğine bakıp aynı modeli sürdür.",
+      "Bu gelişimi tek denemelik bırakmadan istikrara çevirmeye odaklan.",
+      "Artışın kaynağını bulursan aynı kazanımı tekrar etmek daha kolay olur.",
+      "Sonuç iyi; bir sonraki hedef bu bandı korumak.",
+      "İyi giden dersleri korurken geride kalan tek bir alanı iyileştirmek yeterli olabilir.",
+      "Yükselişi devam ettirmek için son haftadaki çalışma düzenini not et."
+    ];
   }else if(diff!=null&&diff>0){
-    title=`İlerleme devam ediyor: +${fmt(diff)} net.`;
-    sub="Küçük artışlar birikince büyük sıralama farkı yaratır.";
+    titles=[
+      `İlerleme devam ediyor: +${fmt(diff)} net.`,
+      `Son denemede küçük ama değerli bir artış var.`,
+      `Önceki denemenin üstüne ${fmt(diff)} net koydun.`,
+      `Net çizgisi doğru yönde hareket ediyor.`,
+      `Sonuç önceki denemeye göre daha iyi: +${fmt(diff)}.`,
+      `Küçük artışlar birikiyor; bu da trendi yukarı taşıyor.`,
+      `Son ${latestExam.exam_type} sonucunda pozitif hareket var.`,
+      `Netin yine bir miktar yükselmiş durumda.`
+    ];
+    subs=[
+      "Küçük artışlar birikince büyük sıralama farkı yaratır.",
+      "Bu tempoyu korumak, tek seferde büyük sıçramadan daha değerlidir.",
+      "İstikrarlı küçük kazanımlar uzun vadede daha güçlü sonuç verir.",
+      "Bir sonraki denemede aynı seviyeyi korumak ilk hedef olsun.",
+      "Hangi dersten gelen artış olduğunu kontrol etmek faydalı olur.",
+      "Trend pozitif; şimdi bunu birkaç deneme üst üste sürdürmek önemli.",
+      "İyi giden kısmı koruyup tek bir zayıf noktaya odaklanabilirsin.",
+      "Bu artış küçük görünse de doğru yönde ilerlediğini gösteriyor."
+    ];
   }else if(diff===0){
-    title="Netin sabit kaldı; bu da bir veri.";
-    sub="Bir sonraki denemede tek bir zayıf dersi hedefleyerek kırılma yaratabilirsin.";
+    titles=[
+      "Netin sabit kaldı; bu da bir veri.",
+      "Son iki deneme aynı seviyede.",
+      "Performans çizgin şu an yatay.",
+      "Bu denemede net değişmedi.",
+      "Sonuç aynı bantta kalmış.",
+      "İki deneme arasında belirgin fark yok.",
+      "Net seviyen şimdilik sabit.",
+      "Son deneme öncekiyle aynı noktada."
+    ];
+    subs=[
+      "Bir sonraki denemede tek bir zayıf dersi hedefleyerek kırılma yaratabilirsin.",
+      "Bu noktada küçük bir ders bazlı iyileştirme fark yaratabilir.",
+      "Yatay dönemler normal; önemli olan nerede takıldığını görmek.",
+      "Bir sonraki adım, en çok net kaybettiren dersi belirlemek olabilir.",
+      "Aynı seviyede kalmak bazen yeni yükselişten önceki geçiş dönemidir.",
+      "Ders bazlı grafikte en durağan alanı seçip oraya yüklenebilirsin.",
+      "Tek bir dersin +2 net artması bile toplam grafiği yukarı taşır.",
+      "Şimdi toplam netten çok ders dağılımına bakmak daha faydalı."
+    ];
   }else if(diff!=null&&diff<0){
-    title=`Son deneme ${fmt(Math.abs(diff))} net aşağıda.`;
-    sub="Tek deneme trend değildir. Sonraki denemede hangi dersten geri geldiğini kontrol et.";
+    const loss=fmt(Math.abs(diff));
+    titles=[
+      `Son deneme ${loss} net aşağıda.`,
+      `Bu denemede ${loss} netlik geri çekilme var.`,
+      `Sonuç önceki denemenin ${loss} net altında.`,
+      `Net çizgisinde bu denemeye özel bir düşüş var.`,
+      `Son ${latestExam.exam_type} sonucu biraz geride kaldı.`,
+      `Bu denemede önceki seviyenin altında kaldın.`,
+      `Sonuç aşağı geldi ama tek ölçümle trend değişmiş sayılmaz.`,
+      `Bu denemede net kaybı var: -${loss}.`
+    ];
+    subs=[
+      "Tek deneme trend değildir. Sonraki denemede hangi dersten geri geldiğini kontrol et.",
+      "Önce ders bazlı kırılıma bak; düşüşün kaynağı genellikle tek iki alanda olur.",
+      "Bu sonucu genellemek yerine bir sonraki denemeyi karşılaştırma noktası yap.",
+      "Düşüşün hangi dersten geldiğini bulmak, toplam netten daha önemli.",
+      "Dalgalanma normal; önemli olan aynı hatanın tekrar edip etmediği.",
+      "Sonuçtan çok, neden düştüğünü bulmak bir sonraki artışı hızlandırır.",
+      "Bir deneme kötü geçti diye genel performansın düşmüş sayılmaz.",
+      "Ders grafiğinde en çok gerileyen alanı belirleyip küçük bir düzeltme yap."
+    ];
   }else{
-    title="İlk veri geldi. Artık gelişimi ölçebiliriz.";
-    sub="İkinci denemeden sonra gerçek trendin oluşmaya başlayacak.";
+    titles=[
+      "İlk veri geldi. Artık gelişimi ölçebiliriz.",
+      "Başlangıç noktası belli oldu.",
+      "İlk deneme kaydı tamamlandı.",
+      "Artık karşılaştırma yapabileceğimiz bir referansın var.",
+      "İlk sonuç sisteme işlendi.",
+      "Gelişim grafiğinin ilk noktası oluştu."
+    ];
+    subs=[
+      "İkinci denemeden sonra gerçek trendin oluşmaya başlayacak.",
+      "Bir sonraki deneme ilk değişimi gösterecek.",
+      "Şimdilik amaç aynı koşullarda ikinci veriyi oluşturmak.",
+      "İkinci sonuç geldikten sonra ders bazlı farkları daha net okuyabiliriz.",
+      "Düzenli kayıt geldikçe analiz daha anlamlı hale gelecek.",
+      "Bir sonraki deneme, bu başlangıç seviyesinin üstüne ne koyduğunu gösterecek."
+    ];
   }
 
   if(target&&target.target_tyt!=null&&target.target_ayt!=null){
@@ -200,16 +315,42 @@ function renderMotivation(tyt,ayt,target){
     if(t!=null&&a!=null){
       const remain=Math.max(0,Number(target.target_tyt)-t)+Math.max(0,Number(target.target_ayt)-a);
       if(remain===0){
-        title=`${target.university} hedef baremini yakaladın.`;
-        sub="Şimdi amaç bunu tek denemelik değil, istikrarlı bir seviyeye çevirmek.";
+        titles=[
+          `${target.university} hedef baremini yakaladın.`,
+          `Hedef bareminin üzerindesin.`,
+          `${target.university} için belirlenen net bandına ulaştın.`,
+          `Hedef net seviyesi şu an yakalanmış durumda.`,
+          `Toplam TYT/AYT hedef baremi tamamlandı.`
+        ];
+        subs=[
+          "Şimdi amaç bunu tek denemelik değil, istikrarlı bir seviyeye çevirmek.",
+          "Bir sonraki adım bu seviyeyi birkaç deneme boyunca koruyabilmek.",
+          "Artık hedefe ulaşmaktan çok, hedef bandında kalmaya odaklan.",
+          "Bu noktadan sonra istikrar en az net artışı kadar önemli.",
+          "Seviyeyi korumak, hedefi yakalamak kadar değerli."
+        ];
       }else if(remain<=10){
-        title=`${target.university} hedefine çok yakınsın.`;
-        sub=`Toplamda yaklaşık ${fmt(remain)} netlik mesafe kaldı. Küçük kazanımlar artık çok değerli.`;
+        titles=[
+          `${target.university} hedefine çok yakınsın.`,
+          `Hedefle aranda toplam yaklaşık ${fmt(remain)} net kaldı.`,
+          `Hedef bandına girmene az kaldı.`,
+          `Toplam net farkı artık tek haneli seviyeye yaklaştı.`,
+          `${target.university} hedefi artık oldukça yakın.`,
+          `Hedef baremine kalan mesafe yaklaşık ${fmt(remain)} net.`
+        ];
+        subs=[
+          "Küçük kazanımlar artık çok değerli.",
+          "Bu aşamada 1-2 netlik ders bazlı artışlar bile büyük fark yaratır.",
+          "Hedefe yakınken istikrar ve hata azaltma daha önemli hale gelir.",
+          "Şimdi en hızlı net gelebilecek dersi seçmek mantıklı olur.",
+          "Büyük değişiklikten çok küçük ve güvenli artışlara odaklan.",
+          "Son birkaç neti kapatmak için ders bazlı zayıf noktalar daha kritik."
+        ];
       }
     }
   }
 
-  motivationBanner.innerHTML=`<div><span class="motivation-kicker">Bugünkü odak</span><b>${title}</b><small>${sub}</small></div>`;
+  motivationBanner.innerHTML=`<div><span class="motivation-kicker">Bugünkü odak</span><b>${pickMessage(titles,key+"t")}</b><small>${pickMessage(subs,key+"s")}</small></div>`;
 }
 
 function renderGoal(target,t,a){
