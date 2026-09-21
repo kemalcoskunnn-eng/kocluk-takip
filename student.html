@@ -48,6 +48,22 @@
   </div>
 
   <div class="card">
+    <div class="card-head"><div><span class="eyebrow">Trend</span><h2>Son 5 vs önceki 5</h2></div><span class="pill">Net ortalaması</span></div>
+    <div id="studentTrendCards" class="trend-cards"></div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="card chart-card">
+      <div class="card-head"><div><span class="eyebrow blue">Ders bazlı</span><h2>TYT ders gelişimi</h2></div></div>
+      <div class="chart-wrap subject-chart-wrap"><canvas id="tytSubjectsChart"></canvas></div>
+    </div>
+    <div class="card chart-card">
+      <div class="card-head"><div><span class="eyebrow amber">Ders bazlı</span><h2>AYT ders gelişimi</h2></div></div>
+      <div class="chart-wrap subject-chart-wrap"><canvas id="aytSubjectsChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
     <div class="card-head"><div><span class="eyebrow">Geçmiş</span><h2>Tüm denemelerim</h2></div><span id="examCount" class="pill">0 deneme</span></div>
     <div class="table-wrap"><table><thead><tr><th>Tarih</th><th>Tür</th><th>Deneme</th><th>Toplam</th><th>Önceki +/-</th><th>Başarı %</th></tr></thead><tbody id="rows"></tbody></table></div>
   </div>
