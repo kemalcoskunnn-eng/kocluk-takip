@@ -7,7 +7,7 @@
 <body>
 <div class="shell">
   <header class="topbar">
-    <div><span class="eyebrow">Canlı koç ekranı</span><h1>Koç Paneli</h1><p class="muted">Öğrencilerin son durumunu, gelişimini ve hedefe uzaklığını tek ekranda izle.</p></div>
+    <div><span class="eyebrow">Canlı koç ekranı</span><h1>Koç Paneli</h1><p class="muted">Öğrencilerin son netlerini ve kişisel gelişimini tek ekranda izle.</p></div>
     <button class="secondary" onclick="signOut()">Çıkış</button>
   </header>
 
@@ -15,14 +15,14 @@
 
   <div class="card">
     <div class="card-head">
-      <div><span class="eyebrow">Öğrenci özeti</span><h2>Son durum</h2></div>
+      <div><span class="eyebrow">Kişisel gelişim</span><h2>Öğrenci bazlı ilerleme</h2></div>
       <span class="live-dot">● Canlı</span>
     </div>
     <div id="studentCards" class="student-summary-grid"></div>
   </div>
 
   <div class="card">
-    <div class="card-head"><div><span class="eyebrow">Öğrenciler</span><h2>Hedef ve gelişim tablosu</h2></div><span id="updatedAt" class="muted small"></span></div>
+    <div class="card-head"><div><span class="eyebrow">Öğrenciler</span><h2>Son netler ve hedef durumu</h2></div><span id="updatedAt" class="muted small"></span></div>
     <div class="table-wrap"><table>
       <thead><tr><th>Öğrenci</th><th>Son TYT</th><th>Son AYT</th><th>Önceki TYT +/-</th><th>Önceki AYT +/-</th><th>Hedef</th><th>TYT fark</th><th>AYT fark</th><th>Durum</th></tr></thead>
       <tbody id="students"></tbody>
@@ -30,6 +30,7 @@
   </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="config.js"></script><script src="app.js"></script><script src="coach.js"></script>
 </body>
 </html>
