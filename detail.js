@@ -45,7 +45,7 @@ async function loadDetail(){
   detailSummary.innerHTML=
     '<div class="overview-metric tyt-metric"><span>Son TYT</span><b>'+(t?fmt(t.total_net):"Veri yok")+'</b><small>'+tyt.length+' TYT denemesi</small></div>' +
     '<div class="overview-metric ayt-metric"><span>Son AYT</span><b>'+(a?fmt(a.total_net):"Veri yok")+'</b><small>'+ayt.length+' AYT denemesi</small></div>' +
-    '<div class="overview-metric"><span>Hedef</span><b class="detail-target-name">'+(target?.university||"Seçilmedi")+'</b><small>'+(target?"TYT "+fmt(target.target_tyt)+" • AYT "+fmt(target.target_ayt):"Hedef belirlenmedi")+'</small></div>' +
+    '<div class="overview-metric"><span>Hedef</span><b class="detail-target-name">'+(target?.university||"Seçilmedi")+'</b><small>'+(target?(target.target_tyt!=null&&target.target_ayt!=null?"TYT "+fmt(target.target_tyt)+" • AYT "+fmt(target.target_ayt):"Referans netler henüz eklenmedi"):"Hedef belirlenmedi")+'</small></div>' +
     '<div class="overview-metric"><span>Toplam kayıt</span><b>'+exams.length+'</b><small>Tüm denemeler</small></div>';
   function trendCard(label,tr){
     const cls=tr.diff==null?"":tr.diff>=0?"positive":"negative";
