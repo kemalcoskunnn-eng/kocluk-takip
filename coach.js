@@ -54,11 +54,11 @@ function buildProgressChart(canvasId, exams){
         tooltip:{callbacks:{label(ctx){
           const exam=ordered[ctx.dataIndex];
           if(!exam||ctx.raw==null)return "";
-          return `${exam.exam_type}: ${fmt(exam.total_net)} net (${fmt(ctx.raw,1)}%)`;
+          return `${exam.exam_type}: ${fmt(exam.total_net)} net`;
         }}}
       },
       scales:{
-        y:{min:0,max:100,ticks:{callback:v=>v+"%",font:{size:9}},grid:{color:"rgba(148,163,184,.12)"}},
+        y:{min:0,max:120,ticks:{font:{size:9}},grid:{color:"rgba(148,163,184,.12)"}},
         x:{ticks:{font:{size:9},maxRotation:0},grid:{display:false}}
       }
     }
@@ -141,7 +141,7 @@ async function load(){
 
         <div class="personal-chart-head">
           <span>Kişisel gelişim</span>
-          <small>TYT / AYT başarı yüzdesi</small>
+          <small>TYT / AYT net gelişimi</small>
         </div>
         <div class="personal-chart-wrap"><canvas id="${canvasId}"></canvas></div>
 
