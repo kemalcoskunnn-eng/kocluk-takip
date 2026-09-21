@@ -16,6 +16,7 @@ const shortDate=s=>{
   const [y,m,d]=s.split("-");
   return `${d}.${m}`;
 };
+const fullDate=s=>{\n  if(!s)return"—";\n  const [y,m,d]=s.split("-");\n  return `${d}.${m}.${y}`;\n};
 
 function buildProgressChart(canvasId, exams){
   const old=progressCharts.get(canvasId);
@@ -117,7 +118,7 @@ async function load(){
 
     const safeId=p.id.replace(/[^a-zA-Z0-9_-]/g,"");
     const canvasId=`progress-${safeId}`;
-
+    const previousByType={TYT:null,AYT:null};\n    const diffMap=new Map();\n    for(const exam of e){\n      const prev=previousByType[exam.exam_type];\n      diffMap.set(exam.id,prev==null?null:Number(exam.total_net)-prev);\n      previousByType[exam.exam_type]=Number(exam.total_net);\n    }\n    const historyRows=e.length?e.slice().reverse().map(exam=>{\n      const diff=diffMap.get(exam.id);\n      return `<tr><td>${fullDate(exam.exam_date)}</td><td><span class="type-chip ${exam.exam_type.toLowerCase()}">${exam.exam_type}</span></td><td>${exam.exam_name||"—"}</td><td><b>${fmt(exam.total_net)}</b></td><td class="${diff==null?"":diff>=0?"positive":"negative"}">${signed(diff)}</td></tr>`;\n    }).join(""):`<tr><td colspan="5" class="muted">Henüz deneme kaydı yok.</td></tr>`;\n
     studentCards.insertAdjacentHTML("beforeend",`
       <article class="student-summary-card">
         <div class="student-summary-head">
@@ -148,10 +149,7 @@ async function load(){
           <span>Başlangıçtan TYT: <b class="${tStart==null?"":tStart>=0?"positive":"negative"}">${signed(tStart)}</b></span>
           <span>Başlangıçtan AYT: <b class="${aStart==null?"":aStart>=0?"positive":"negative"}">${signed(aStart)}</b></span>
         </div>
-        <div class="student-target">
-          <span>Hedef</span><b>${target?.university||"Henüz seçilmedi"}</b>
-        </div>
-      </article>
+        <div class="student-target">\n          <span>Hedef</span><b>${target?.university||"Henüz seçilmedi"}</b>\n        </div>\n        <div class="history-title"><div><span class="eyebrow">Deneme geçmişi</span><h3>Tüm denemeler</h3></div><span class="pill">${e.length} kayıt</span></div>\n        <div class="table-wrap compact-history"><table><thead><tr><th>Tarih</th><th>Tür</th><th>Deneme</th><th>Net</th><th>Önceki +/-</th></tr></thead><tbody>${historyRows}</tbody></table></div>\n      </article>
     `);
 
     students.insertAdjacentHTML("beforeend",`<tr>
