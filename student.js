@@ -163,6 +163,55 @@ function subjectChart(existing,canvas,exams,type){
   });
 }
 
+
+function renderMotivation(tyt,ayt,target){
+  const all=[...tyt,...ayt].sort((a,b)=>a.exam_date.localeCompare(b.exam_date)||a.created_at.localeCompare(b.created_at));
+  if(!all.length){
+    motivationBanner.innerHTML='<div><span class="motivation-kicker">Başlangıç</span><b>İlk denemeni gir, gelişimin burada görünmeye başlayacak.</b><small>Önemli olan kusursuz başlamak değil, düzenli veri oluşturmak.</small></div>';
+    return;
+  }
+
+  const latestExam=all[all.length-1];
+  const same=latestExam.exam_type==="TYT"?tyt:ayt;
+  const prev=same.length>1?same[same.length-2]:null;
+  const diff=prev?Number(latestExam.total_net)-Number(prev.total_net):null;
+
+  let title="",sub="";
+  if(diff!=null&&diff>=5){
+    title=`Son ${latestExam.exam_type} denemende ${fmt(diff)} net yükseldin.`;
+    sub="Bu sıçramayı kalıcı hale getirmek için aynı çalışma düzenini koru.";
+  }else if(diff!=null&&diff>0){
+    title=`İlerleme devam ediyor: +${fmt(diff)} net.`;
+    sub="Küçük artışlar birikince büyük sıralama farkı yaratır.";
+  }else if(diff===0){
+    title="Netin sabit kaldı; bu da bir veri.";
+    sub="Bir sonraki denemede tek bir zayıf dersi hedefleyerek kırılma yaratabilirsin.";
+  }else if(diff!=null&&diff<0){
+    title=`Son deneme ${fmt(Math.abs(diff))} net aşağıda.`;
+    sub="Tek deneme trend değildir. Sonraki denemede hangi dersten geri geldiğini kontrol et.";
+  }else{
+    title="İlk veri geldi. Artık gelişimi ölçebiliriz.";
+    sub="İkinci denemeden sonra gerçek trendin oluşmaya başlayacak.";
+  }
+
+  if(target&&target.target_tyt!=null&&target.target_ayt!=null){
+    const t=tyt.length?Number(tyt[tyt.length-1].total_net):null;
+    const a=ayt.length?Number(ayt[ayt.length-1].total_net):null;
+    if(t!=null&&a!=null){
+      const remain=Math.max(0,Number(target.target_tyt)-t)+Math.max(0,Number(target.target_ayt)-a);
+      if(remain===0){
+        title=`${target.university} hedef baremini yakaladın.`;
+        sub="Şimdi amaç bunu tek denemelik değil, istikrarlı bir seviyeye çevirmek.";
+      }else if(remain<=10){
+        title=`${target.university} hedefine çok yakınsın.`;
+        sub=`Toplamda yaklaşık ${fmt(remain)} netlik mesafe kaldı. Küçük kazanımlar artık çok değerli.`;
+      }
+    }
+  }
+
+  motivationBanner.innerHTML=`<div><span class="motivation-kicker">Bugünkü odak</span><b>${title}</b><small>${sub}</small></div>`;
+}
+
 function renderGoal(target,t,a){
   if(!target){
     goalCard.innerHTML='<div class="card-head"><div><span class="eyebrow">Hedef</span><h2>Üniversite / Bölüm hedefi</h2></div><span class="badge mid">HEDEF YOK</span></div><div class="empty-goal"><b>Henüz hedef belirlenmedi.</b><span>Koç hedef belirlediğinde burada hedefini ve ilerlemeni göreceksin.</span></div>';
@@ -254,6 +303,7 @@ async function loadExams(){
     <div class="overview-metric"><span>En iyi TYT</span><b>${best(tyt)==null?"—":fmt(best(tyt))}</b><small>${tyt.length} TYT denemesi</small></div>
     <div class="overview-metric"><span>En iyi AYT</span><b>${best(ayt)==null?"—":fmt(best(ayt))}</b><small>${ayt.length} AYT denemesi</small></div>`;
 
+  renderMotivation(tyt,ayt,target);
   renderGoal(target,t,a);
   renderBreakdown(exams);
   renderTrendCards(tyt,ayt);
