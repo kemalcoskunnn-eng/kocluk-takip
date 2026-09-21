@@ -1,8 +1,32 @@
 let me, tytChart, aytChart, examChannel;
 
+const EXAM_RULES={
+  TYT:[
+    {name:"Türkçe",min:-10,max:40},
+    {name:"Sosyal",min:-5,max:20},
+    {name:"Matematik",min:-10,max:40},
+    {name:"Fen",min:-5,max:20}
+  ],
+  AYT:[
+    {name:"Matematik",min:-10,max:40},
+    {name:"Edebiyat",min:-6,max:24},
+    {name:"Tarih-1",min:-2.5,max:10},
+    {name:"Coğrafya-1",min:-1.5,max:6}
+  ]
+};
+
 function labelsFor(type){
-  const names=type==="TYT"?["Türkçe","Sosyal","Matematik","Fen"]:["Matematik","Edebiyat","Tarih-1","Coğrafya-1"];
-  ["l1","l2","l3","l4"].forEach((id,i)=>{document.getElementById(id).firstChild.nodeValue=names[i];});
+  const rules=EXAM_RULES[type];
+  ["l1","l2","l3","l4"].forEach((id,i)=>{
+    const label=document.getElementById(id);
+    const input=label.querySelector("input");
+    label.firstChild.nodeValue=rules[i].name;
+    input.min=rules[i].min;
+    input.max=rules[i].max;
+    input.step=".25";
+    input.required=true;
+    input.placeholder=`${rules[i].min} – ${rules[i].max}`;
+  });
 }
 exam_type.addEventListener("change",()=>labelsFor(exam_type.value));
 
@@ -138,13 +162,37 @@ async function loadExams(){
 
 examForm.addEventListener("submit",async(e)=>{
   e.preventDefault();
-  const vals=[s1,s2,s3,s4].map(x=>Number(x.value||0));
+  const type=exam_type.value;
+  const rules=EXAM_RULES[type];
+  const inputs=[s1,s2,s3,s4];
+
+  if(inputs.some(x=>x.value==="")){
+    alert("Lütfen dört dersin netini de girin. Net 0 ise kutuya 0 yazın.");
+    return;
+  }
+
+  const vals=inputs.map(x=>Number(x.value));
+  for(let i=0;i<vals.length;i++){
+    if(!Number.isFinite(vals[i])||vals[i]<rules[i].min||vals[i]>rules[i].max){
+      alert(`${rules[i].name} neti ${rules[i].min} ile ${rules[i].max} arasında olmalı.`);
+      inputs[i].focus();
+      return;
+    }
+  }
+
   const total=vals.reduce((a,b)=>a+b,0);
+  const maxTotal=type==="TYT"?120:80;
+  if(total>maxTotal){
+    alert(`${type} toplam neti ${maxTotal} değerini aşamaz.`);
+    return;
+  }
+
   const {error}=await supabaseClient.from("exams").insert({
-    student_id:me.session.user.id,exam_type:exam_type.value,exam_date:exam_date.value,exam_name:exam_name.value,
-    score_1:vals[0],score_2:vals[1],score_3:vals[2],score_4:vals[3],total_net:total,note:note.value
+    student_id:me.session.user.id,exam_type:type,exam_date:exam_date.value,exam_name:exam_name.value.trim(),
+    score_1:vals[0],score_2:vals[1],score_3:vals[2],score_4:vals[3],total_net:total,note:note.value.trim()
   });
   if(error){alert(error.message);return;}
+
   examForm.reset();
   labelsFor("TYT");
   exam_date.valueAsDate=new Date();
