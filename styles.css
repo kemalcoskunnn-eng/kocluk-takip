@@ -33,3 +33,31 @@
 .history-title h3{font-size:15px;margin:3px 0 0}
 .compact-history table{min-width:620px}
 @media(max-width:600px){.student-summary-card .personal-chart-wrap{height:210px}}
+
+.student-overview{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.overview-metric{background:rgba(255,255,255,.94);border:1px solid #e3e8f1;border-radius:18px;padding:17px 18px;box-shadow:0 10px 30px rgba(31,42,68,.045)}
+.overview-metric span{font-size:10px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:#748095}
+.overview-metric b{display:block;font-size:28px;letter-spacing:-.035em;margin:7px 0 4px}
+.overview-metric small{font-size:11px;color:#8993a3}
+.tyt-metric{border-top:3px solid #2563eb}.ayt-metric{border-top:3px solid #d97706}
+.student-dashboard-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}
+.goal-card,.latest-breakdown-card{min-height:245px}
+.goal-progress-row{display:grid;gap:18px;margin-top:16px}
+.goal-progress-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.goal-progress-label span{font-size:10px;font-weight:900;letter-spacing:.08em;color:#667085}
+.goal-progress-label b{font-size:14px}
+.progress-track,.subject-track{height:9px;border-radius:999px;background:#edf1f6;overflow:hidden}
+.progress-track span,.subject-track span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#315bd6,#6f8de8)}
+.progress-track.amber span{background:linear-gradient(90deg,#d97706,#efb45c)}
+.goal-progress-item small{display:block;margin-top:7px;color:#7e8898;font-size:10px}
+.empty-goal{height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;color:#7d8796}
+.empty-goal b{color:#364152}
+.breakdown-total{display:flex;align-items:end;justify-content:space-between;border-bottom:1px solid #edf0f5;padding-bottom:10px;margin-bottom:10px}
+.breakdown-total span{font-size:10px;font-weight:900;text-transform:uppercase;color:#7b8494}.breakdown-total b{font-size:26px}
+.subject-breakdown{display:grid;gap:10px}.subject-row>div:first-child{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px}.subject-row b{font-size:11px}
+.subject-track{height:6px}
+.form-total-preview{text-align:right}.form-total-preview span{display:block;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:#7b8494}.form-total-preview b{font-size:22px;letter-spacing:-.03em}
+.student-chart-wrap{height:245px}
+.student-charts .card{min-height:315px}
+@media(max-width:900px){.student-overview{grid-template-columns:1fr 1fr}.student-dashboard-grid{grid-template-columns:1fr}.student-chart-wrap{height:220px}}
+@media(max-width:600px){.student-overview{grid-template-columns:1fr 1fr;gap:8px}.overview-metric{padding:13px}.overview-metric b{font-size:22px}.student-chart-wrap{height:190px}.form-total-preview b{font-size:18px}}
