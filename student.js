@@ -165,40 +165,26 @@ function subjectChart(existing,canvas,exams,type){
 
 function renderGoal(target,t,a){
   if(!target){
-    goalCard.innerHTML=`
-      <div class="card-head"><div><span class="eyebrow">Hedef</span><h2>Hukuk hedefi</h2></div><span class="badge mid">HEDEF YOK</span></div>
-      <div class="empty-goal"><b>Henüz hedef belirlenmedi.</b><span>Koç hedef belirlediğinde burada TYT ve AYT ilerlemeni göreceksin.</span></div>`;
+    goalCard.innerHTML='<div class="card-head"><div><span class="eyebrow">Hedef</span><h2>Üniversite / Bölüm hedefi</h2></div><span class="badge mid">HEDEF YOK</span></div><div class="empty-goal"><b>Henüz hedef belirlenmedi.</b><span>Koç hedef belirlediğinde burada hedefini ve ilerlemeni göreceksin.</span></div>';
     return;
   }
-
   const tNet=t?Number(t.total_net):null;
   const aNet=a?Number(a.total_net):null;
-  const tTarget=Number(target.target_tyt);
-  const aTarget=Number(target.target_ayt);
+  const hasBenchmark=target.target_tyt!=null&&target.target_ayt!=null;
+  const tTarget=hasBenchmark?Number(target.target_tyt):null;
+  const aTarget=hasBenchmark?Number(target.target_ayt):null;
+  if(!hasBenchmark){
+    goalCard.innerHTML='<div class="card-head"><div><span class="eyebrow">Hedef</span><h2>'+target.university+'</h2></div><span class="pill">Hedef tanımlı</span></div><div class="empty-goal"><b>'+target.university+'</b><span>Bu hedef için TYT/AYT referans netleri henüz sisteme eklenmedi.</span></div>';
+    return;
+  }
   const tProgress=tNet==null?0:Math.max(0,Math.min(100,(tNet/tTarget)*100));
   const aProgress=aNet==null?0:Math.max(0,Math.min(100,(aNet/aTarget)*100));
   const tGap=tNet==null?null:tTarget-tNet;
   const aGap=aNet==null?null:aTarget-aNet;
-
-  goalCard.innerHTML=`
-    <div class="card-head">
-      <div><span class="eyebrow">Hedef</span><h2>${target.university}</h2></div>
-      <span class="pill">Sıra referansı ${target.rank_ref??"—"}</span>
-    </div>
-    <div class="goal-progress-row">
-      <div class="goal-progress-item">
-        <div class="goal-progress-label"><span>TYT</span><b>${tNet==null?"Veri yok":fmt(tNet)} / ${fmt(tTarget)}</b></div>
-        <div class="progress-track"><span style="width:${tProgress}%"></span></div>
-        <small>${tGap==null?"İlk TYT verisi bekleniyor":tGap<=0?"Hedef baremi geçildi":`Hedefe ${fmt(tGap)} net kaldı`}</small>
-      </div>
-      <div class="goal-progress-item">
-        <div class="goal-progress-label"><span>AYT</span><b>${aNet==null?"Veri yok":fmt(aNet)} / ${fmt(aTarget)}</b></div>
-        <div class="progress-track amber"><span style="width:${aProgress}%"></span></div>
-        <small>${aGap==null?"İlk AYT verisi bekleniyor":aGap<=0?"Hedef baremi geçildi":`Hedefe ${fmt(aGap)} net kaldı`}</small>
-      </div>
-    </div>`;
+  goalCard.innerHTML='<div class="card-head"><div><span class="eyebrow">Hedef</span><h2>'+target.university+'</h2></div><span class="pill">'+(target.rank_ref!=null?"Sıra referansı "+target.rank_ref:"Hedef tanımlı")+'</span></div>'+
+    '<div class="goal-progress-row"><div class="goal-progress-item"><div class="goal-progress-label"><span>TYT</span><b>'+(tNet==null?"Veri yok":fmt(tNet))+' / '+fmt(tTarget)+'</b></div><div class="progress-track"><span style="width:'+tProgress+'%"></span></div><small>'+(tGap==null?"İlk TYT verisi bekleniyor":tGap<=0?"Hedef baremi geçildi":"Hedefe "+fmt(tGap)+" net kaldı")+'</small></div>'+
+    '<div class="goal-progress-item"><div class="goal-progress-label"><span>AYT</span><b>'+(aNet==null?"Veri yok":fmt(aNet))+' / '+fmt(aTarget)+'</b></div><div class="progress-track amber"><span style="width:'+aProgress+'%"></span></div><small>'+(aGap==null?"İlk AYT verisi bekleniyor":aGap<=0?"Hedef baremi geçildi":"Hedefe "+fmt(aGap)+" net kaldı")+'</small></div></div>';
 }
-
 function renderBreakdown(exams){
   if(!exams.length){
     latestBreakdown.innerHTML=`
