@@ -470,42 +470,73 @@ async function loadExams(){
     .subscribe();
 })();
 
+
 examForm.addEventListener("submit",async(e)=>{
   e.preventDefault();
-  const type=exam_type.value;
-  const rules=EXAM_RULES[type];
-  const inputs=[s1,s2,s3,s4];
 
-  if(inputs.some(x=>x.value==="")){
-    alert("Lütfen dört dersin netini de girin. Net 0 ise kutuya 0 yazın.");
-    return;
-  }
+  const submitButton=examForm.querySelector('button[type="submit"]');
+  if(submitButton.disabled)return;
 
-  const vals=inputs.map(x=>Number(x.value));
-  for(let i=0;i<vals.length;i++){
-    if(!Number.isFinite(vals[i])||vals[i]<rules[i].min||vals[i]>rules[i].max){
-      alert(`${rules[i].name} neti ${rules[i].min} ile ${rules[i].max} arasında olmalı.`);
-      inputs[i].focus();
+  const originalText=submitButton.textContent;
+  submitButton.disabled=true;
+  submitButton.textContent="Kaydediliyor...";
+
+  try{
+    const type=exam_type.value;
+    const rules=EXAM_RULES[type];
+    const inputs=[s1,s2,s3,s4];
+
+    if(inputs.some(x=>x.value==="")){
+      alert("Lütfen dört dersin netini de girin. Net 0 ise kutuya 0 yazın.");
       return;
     }
+
+    const vals=inputs.map(x=>Number(x.value));
+    for(let i=0;i<vals.length;i++){
+      if(!Number.isFinite(vals[i])||vals[i]<rules[i].min||vals[i]>rules[i].max){
+        alert(`${rules[i].name} neti ${rules[i].min} ile ${rules[i].max} arasında olmalı.`);
+        inputs[i].focus();
+        return;
+      }
+    }
+
+    const total=vals.reduce((a,b)=>a+b,0);
+    const maxTotal=type==="TYT"?120:80;
+    if(total>maxTotal){
+      alert(`${type} toplam neti ${maxTotal} değerini aşamaz.`);
+      return;
+    }
+
+    const payload={
+      student_id:me.session.user.id,
+      exam_type:type,
+      exam_date:exam_date.value,
+      exam_name:exam_name.value.trim(),
+      score_1:vals[0],
+      score_2:vals[1],
+      score_3:vals[2],
+      score_4:vals[3],
+      total_net:total,
+      note:note.value.trim()
+    };
+
+    const {error}=await supabaseClient.from("exams").insert(payload);
+    if(error){
+      if(error.code==="23505"){
+        alert("Bu deneme zaten kayıtlı. Aynı sonucu ikinci kez eklemedim.");
+      }else{
+        alert(error.message);
+      }
+      return;
+    }
+
+    examForm.reset();
+    labelsFor("TYT");
+    exam_date.valueAsDate=new Date();
+    updateTotalPreview();
+    await loadExams();
+  }finally{
+    submitButton.disabled=false;
+    submitButton.textContent=originalText;
   }
-
-  const total=vals.reduce((a,b)=>a+b,0);
-  const maxTotal=type==="TYT"?120:80;
-  if(total>maxTotal){
-    alert(`${type} toplam neti ${maxTotal} değerini aşamaz.`);
-    return;
-  }
-
-  const {error}=await supabaseClient.from("exams").insert({
-    student_id:me.session.user.id,exam_type:type,exam_date:exam_date.value,exam_name:exam_name.value.trim(),
-    score_1:vals[0],score_2:vals[1],score_3:vals[2],score_4:vals[3],total_net:total,note:note.value.trim()
-  });
-  if(error){alert(error.message);return;}
-
-  examForm.reset();
-  labelsFor("TYT");
-  exam_date.valueAsDate=new Date();
-  updateTotalPreview();
-  await loadExams();
 });
